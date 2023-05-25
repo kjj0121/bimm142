@@ -1,0 +1,133 @@
+---
+title: "Class 5: Data Visualization"
+author: "Jae (A16138412)"
+format: pdf
+pdf-engine: pdflatex
+---
+
+# Base R graphics vs ggplot2
+
+There are many graphics systems available in R, including so-called "base" R graphics and the very popular **ggplot2** package.
+
+To compare these let's play with the inbuilt `cars` dataset.
+
+```{r}
+head(cars)
+```
+
+To use "base" I can simply call the `plot()` function:
+
+```{r}
+plot(cars)
+```
+To use `ggplot2` package I first need to install it with the function `install.packages("ggplot2")`.
+
+I will run this in my R console (i.e. the R brain) as I do not want to re-install it every time I render my report...
+
+The main function in this package is called `ggplot()`. Can i just call it?
+```{r}
+library(ggplot2)
+ggplot()
+```
+To make a figure with ggplot I need always at least 3 things:
+
+- data
+- aes
+- geom
+
+```{r}
+ggplot(data=cars)+aes(x=speed,y=dist)+geom_point()
+```
+
+```{r}
+ggplot(cars)+aes(speed,dist)+geom_point()
+```
+
+```{r}
+ggplot(cars,aes(speed,dist))+geom_point()
+```
+
+
+If I want to add more things I can just keep adding layers
+```{r}
+ggplot(data=cars)+aes(x=speed,y=dist)+geom_point()+geom_line()
+```
+
+```{r}
+ggplot(data=cars)+aes(x=speed,y=dist)+geom_point()+geom_smooth()
+```
+ggplot is much more verbose than base R plots for standard plots but it has a consistent layer system that I can use to make just about any plot
+
+```{r}
+ggplot(data=cars)+aes(x=speed,y=dist)+geom_point()+geom_smooth(se=FALSE,method="lm")+labs(title="Stopping distance for old cars based on speed",caption="Figure 1. The distance required to come to a stop increases as the speed increases.")
+```
+
+## A more complicated plot
+
+Let's lot some gene expression data
+The code below reads the results of a differential expression analysis where a new anti-viral drug is being tested.
+
+```{r}
+url <- "https://bioboot.github.io/bimm143_S20/class-material/up_down_expression.txt"
+genes <- read.delim(url)
+head(genes)
+```
+> Q. How many genes are in this dataset?
+
+```{r}
+nrow(genes)
+```
+
+> Q. How can we summerize the last column ("State")?
+
+```{r}
+table(genes$State)
+```
+
+```{r}
+ggplot(genes)+aes(x=Condition1, y=Condition2)+geom_point()
+```
+
+```{r}
+p<-ggplot(genes)+aes(x=Condition1, y=Condition2,color=State)+geom_point()
+```
+
+```{r}
+p+labs(title="Gene Expression Changes Upon Drug Treatment",x="Control (no drug)",y="Drug treated")+scale_color_manual(values=c("pink","lightgreen","black"))
+```
+
+## Going Further
+
+Here I read a slightly larger dataset:
+
+```{r}
+# File location online
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/master/inst/extdata/gapminder.tsv"
+
+gapminder <- read.delim(url)
+head(gapminder)
+```
+
+```{r}
+n<-ggplot(gapminder)+aes(x=gdpPercap, y=lifeExp)+geom_point()
+```
+
+```{r}
+m<-n+aes(color=continent,size=pop)+geom_point(alpha=0.3)
+```
+
+A very useful layer to add sometimes is for "faceting"
+
+```{r}
+m+facet_wrap(~continent)
+```
+
+
+```{r}
+ggplot(mtcars) + aes(x=mpg, y=disp) + geom_point()
+```
+
+
+
+
+
