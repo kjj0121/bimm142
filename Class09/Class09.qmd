@@ -1,0 +1,117 @@
+---
+title: "Class09"
+author: "Jae Kim"
+format: pdf
+editor: visual
+---
+
+# PDB Statistics
+
+The PDB is the main database for structural information on biomolecules. Let's see what it contains:
+
+Download a CSV file from the PDB site (accessible from “Analyze” > “PDB Statistics” > “by Experimental Method and Molecular Type”. Move this CSV file into your RStudio project and use it to answer the following questions:
+
+```{r}
+db <-read.csv("pdbData.csv")
+db
+```
+
+> Q1: What percentage of structures in the PDB are solved by X-Ray and Electron Microscopy.
+
+```{r}
+xray.total <- gsub(",", "", db$X.ray)
+
+sum(as.numeric(xray.total))
+```
+
+Function:
+```{r}
+total <- function(x) {
+  x <- gsub(",", "", x)
+  sum(as.numeric(x))
+}
+
+total(db$X.ray)
+total(db$EM)
+total(db$Total)
+```
+```{r}
+percentage <- function(y){
+  total(y)/total(db$Total)*100
+}
+
+percentage(db$X.ray)
+percentage(db$EM)
+```
+
+
+> Q2: What proportion of structures in the PDB are protein?
+
+```{r}
+round(percentage(db$Total[1])/100, 2)
+```
+
+
+> Q3: Type HIV in the PDB website search box on the home page and determine how many HIV-1 protease structures are in the current PDB?
+
+SKIPPED
+
+![HIV-PR structure from MERK with a bound drug](1HSG.png)
+
+> Q4: Water molecules normally have 3 atoms. Why do we see just one atom per water molecule in this structure?
+
+The structure is too low a resuolution to see H atoms. You need a sub 1 Angstrom resolution to see Hydrogen.
+
+> Q5: There is a critical “conserved” water molecule in the binding site. Can you identify this water molecule? What residue number does this water molecule have
+
+
+HOH308
+
+
+# Working with Structures in R
+
+We can use the `bio3d` package to read and perform bioinformatics calculations on PDB structures.
+
+```{r}
+library(bio3d)
+
+pdb <- read.pdb("1hsg")
+pdb
+```
+
+```{r}
+attributes(pdb)
+
+head(pdb$atom)
+```
+
+> Q7: How many amino acid residues are there in this pdb object? 
+
+198
+
+> Q8: Name one of the two non-protein residues? 
+
+HOH (127), MK1 (1)
+
+> Q9: How many protein chains are in this structure? 
+
+Chains#: 2
+
+```{r}
+adk <- read.pdb("6s36")
+adk
+```
+
+Perform a  prediction of flexibility with a technique called NMA (normal made analysis)
+
+```{r}
+# Perform flexibility prediction
+m <- nma(adk)
+plot(m)
+```
+
+Write out a "movie" (aka trajectory) of the motion for viewing in MOlstar
+
+```{r}
+mktrj(m, file="adk_m7.pdb")
+```
