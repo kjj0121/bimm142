@@ -1,0 +1,157 @@
+---
+title: "Lab6"
+author: "Jae Kim (A16138412)"
+format: pdf
+editor: visual
+---
+
+```{r}
+# Example input vectors to start with
+student1 <- c(100, 100, 100, 100, 100, 100, 100, 90)
+student2 <- c(100, NA, 90, 90, 90, 90, 97, 80)
+student3 <- c(90, NA, NA, NA, NA, NA, NA, NA)
+```
+
+> Q1. Write a function grade() to determine an overall grade from a vector of student homework assignment scores dropping the lowest single score. If a student misses a homework (i.e. has an NA value) this can be used as a score to be potentially dropped. Your final function should be adequately explained with code comments and be able to work on an example class gradebook such as this one in CSV format: "https://tinyurl.com/gradeinput" \[3pts\]
+
+We can use the `mean()` function to calculate the average for a given student vector.
+
+```{r}
+mean(student1)
+mean(student2)
+mean(student3)
+```
+
+Calculating mean for student2 and student3 with NAs removed
+
+```{r}
+mean(student2, na.rm=TRUE)
+mean(student3, na.rm=TRUE)
+```
+
+Calculating mean for student3
+
+```{r}
+x<-student3
+x[is.na(x)]<-0
+mean(x)
+```
+
+```{r}
+x<-student3
+x[-which.min(x)]
+```
+
+Finally, we want to drop the lowest score before calculating the mean. This is equivalent to allowing the student to drop their worst assignment score.
+
+Now I need to put this all back together to make our working snippet:
+
+```{r}
+# student1, 2 and 3
+x<-student3
+x
+# Map/replace NA values to zero
+x[is.na(x)]<-0
+# Exclude lowest score and calculate mean
+mean(x[-which.min(x)])
+```
+
+Cool!
+
+This is my working snippet that I can turn into a function called `grade()`
+
+All functions in R have at least 3 things:
+
+-   **Name**, in our case `grade`
+
+-   Input **arguments**, student1, etc.
+
+-   **Body**, this is our working snippet above
+
+```{r}
+grade<-function(x){
+  # Map/replace NA values to zero
+  x[is.na(x)]<-0
+  
+  # Exclude lowest score and calculate mean
+  mean(x[-which.min(x)])
+}
+```
+
+```{r}
+grade(student2)
+```
+
+Read a gradebook from online:
+
+```{r}
+hw<- read.csv("https://tinyurl.com/gradeinput", row.names=1)
+hw
+```
+
+We can use the `apply()` function to grade all the students in this class with our new `grade()` function.
+
+The `apply()` function allows us to run any function over wither the rows or columns of a data.frame. Let's see how it works:
+
+```{r}
+apply(hw, 1, grade)
+ans<- apply(hw, 1, grade)
+```
+
+> Q2. Using your grade() function and the supplied gradebook, Who is the top scoring student overall in the gradebook? \[3pts\]
+
+```{r}
+ans[which.max(ans)]
+```
+
+> Q3. From your analysis of the gradebook, which homework was toughest on students (i.e. obtained the lowest scores overall? \[2pts\]
+
+```{r}
+total_score<-apply(hw, 2, sum, na.rm=TRUE)
+order(total_score)
+which.min(total_score)
+```
+
+```{r}
+avg_score<-apply(hw, 2, mean, na.rm=TRUE)
+order(avg_score)
+which.min(avg_score)
+```
+
+> Q4. Optional Extension: From your analysis of the gradebook, which homework was most predictive of overall score (i.e. highest correlation with average grade score)? \[1pt\]
+
+```{r}
+hw$hw1
+```
+
+```{r}
+cor(hw$hw1,ans)
+cor(hw$hw2,ans)
+cor(hw$hw3,ans)
+cor(hw$hw4,ans)
+cor(hw$hw5,ans)
+```
+
+If I try on hw2, I get NA as there are missing homeworks
+
+I will mask all NA values to zero
+
+```{r}
+mask<-hw
+mask[is.na(mask)]<-0
+mask
+```
+
+```{r}
+cor(mask$hw1,ans)
+cor(mask$hw2,ans)
+cor(mask$hw3,ans)
+cor(mask$hw4,ans)
+cor(mask$hw5,ans)
+```
+
+```{r}
+corr<-apply(mask,2,cor, y=ans)
+corr
+order(corr)
+```
