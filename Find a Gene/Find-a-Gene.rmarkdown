@@ -1,0 +1,65 @@
+---
+title: "Find a Gene"
+format: pdf
+editor: visual
+---
+
+```{r}
+library(bio3d)
+```
+
+```{r}
+alignment <- read.fasta("aln-fasta.txt")
+alignment
+```
+
+```{r}
+identity_matrix <- seqidentity(alignment)
+```
+
+```{r}
+heatmap(identity_matrix, Rowv = NA, Colv = NA, col=colorRampPalette(c("white", "blue"))(100))
+```
+
+```{r}
+hheatmap <- heatmap(identity_matrix, Rowv = NA, Colv = NA, col = colorRampPalette(c("red", "yellow"))(100),
+        labRow = alignment$Name, labCol = alignment$Name,
+        cexRow = 0.4, cexCol = 0.4, # Reduce the label font size if needed
+        las = 2) 
+```
+
+```{r}
+dev.copy(png, "heatmap.png")
+```
+
+```{r}
+sus <- read.fasta("Sus scrofa.txt")
+```
+
+```{r}
+blast_result <- blast.pdb(sus)
+```
+
+```{r}
+top_hits <- head(unique(blast_result$hit),4)
+top_hits
+```
+
+```{r}
+Cons_seq <- consensus(alignment)
+print(Cons_seq$seq)
+```
+
+```{r}
+BlastResult <- blast.pdb(Cons_seq$seq)
+```
+
+```{r}
+TopHits <- head(unique(BlastResult$hit),14)
+TopHits
+```
+
+```{r}
+pdb.annotate("3EW3_A")
+```
+
