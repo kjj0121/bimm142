@@ -1,0 +1,1 @@
+ssh -i "class17_jae.pem" ubuntu@ec2-35-88-223-154.us-west-2.compute.amazonaws.com
